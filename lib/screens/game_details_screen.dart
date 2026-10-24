@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../widgets/rawg_attribution.dart';
 
 class GameDetailsScreen extends StatelessWidget {
   const GameDetailsScreen({super.key});
@@ -11,6 +12,7 @@ class GameDetailsScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(title: const Text('Game Details')),
       body: Center(child: Text('Game id: $gameId')),
+      bottomNavigationBar: const SafeArea(child: RawgAttribution()),
     );
   }
 }
