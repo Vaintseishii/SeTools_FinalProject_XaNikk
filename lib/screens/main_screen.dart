@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../widgets/rawg_attribution.dart';
 import 'backlog_screen.dart';
 import 'search_screen.dart';
 import 'stats_screen.dart';
@@ -29,13 +30,19 @@ class _MainScreenState extends State<MainScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: IndexedStack(index: _index, children: _tabs),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _index,
-        onTap: (i) => setState(() => _index = i),
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.list), label: 'Backlog'),
-          BottomNavigationBarItem(icon: Icon(Icons.search), label: 'Search'),
-          BottomNavigationBarItem(icon: Icon(Icons.bar_chart), label: 'Stats'),
+      bottomNavigationBar: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const RawgAttribution(),
+          BottomNavigationBar(
+            currentIndex: _index,
+            onTap: (i) => setState(() => _index = i),
+            items: const [
+              BottomNavigationBarItem(icon: Icon(Icons.list), label: 'Backlog'),
+              BottomNavigationBarItem(icon: Icon(Icons.search), label: 'Search'),
+              BottomNavigationBarItem(icon: Icon(Icons.bar_chart), label: 'Stats'),
+            ],
+          ),
         ],
       ),
     );
