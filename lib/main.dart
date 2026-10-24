@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'app_routes.dart';
+import 'app_theme.dart';
 import 'screens/edit_entry_screen.dart';
 import 'screens/game_details_screen.dart';
 import 'screens/main_screen.dart';
@@ -16,9 +17,7 @@ class CartridgeApp extends StatelessWidget {
     return MaterialApp(
       title: 'Cartridge',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-      ),
+      theme: AppTheme.light,
       initialRoute: AppRoutes.home,
       routes: {
         // Tab routes all open MainScreen, each on its own tab.
@@ -29,7 +28,6 @@ class CartridgeApp extends StatelessWidget {
         AppRoutes.gameDetails: (context) => const GameDetailsScreen(),
         AppRoutes.editEntry: (context) => const EditEntryScreen(),
       },
-      
       onUnknownRoute: (settings) => MaterialPageRoute(
         builder: (context) => const MainScreen(),
       ),
