@@ -1,3 +1,5 @@
+import 'package:provider/provider.dart';
+import 'providers/backlog_provider.dart';
 import 'package:flutter/material.dart';
 import 'app_routes.dart';
 import 'app_theme.dart';
@@ -6,7 +8,12 @@ import 'screens/game_details_screen.dart';
 import 'screens/main_screen.dart';
 
 void main() {
-  runApp(const CartridgeApp());
+  runApp(
+    ChangeNotifierProvider(
+      create: (_) => BacklogProvider()..load(),
+      child: const CartridgeApp(),
+    ),
+  );
 }
 
 class CartridgeApp extends StatelessWidget {
