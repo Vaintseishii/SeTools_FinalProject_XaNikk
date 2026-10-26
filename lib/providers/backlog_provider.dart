@@ -57,21 +57,45 @@ class BacklogProvider extends ChangeNotifier {
   }
 
   // ---- Storage: the only two methods that touch shared_preferences ----
-  Future<void> load() async {
-    final prefs = await SharedPreferences.getInstance();
-    final raw = prefs.getString(_storageKey);
-    if (raw == null) return;
 
-    final list = json.decode(raw) as List<dynamic>;
-    _entries
-      ..clear()
-      ..addAll(list.map((e) => BacklogEntry.fromJson(e as Map<String, dynamic>)));
-    notifyListeners();
+  /// Loads saved entries. Broken data never crashes the app:
+  /// unreadable JSON gives an empty backlog, and bad entries are skipped.
+  Future<void> load() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final raw = prefs.getString(_storageKey);
+      if (raw == null) return;
+
+      final decoded = json.decode(raw);
+      if (decoded is! List) return;
+
+      final loaded = <BacklogEntry>[];
+      for (final item in decoded) {
+        try {
+          final entry = BacklogEntry.fromJson(item as Map<String, dynamic>);
+          // Skip duplicates so one game never shows up twice.
+          if (!loaded.any((e) => e.id == entry.id)) loaded.add(entry);
+        } catch (e) {
+          debugPrint('Skipped a broken backlog entry: $e');
+        }
+      }
+
+      _entries
+        ..clear()
+        ..addAll(loaded);
+      notifyListeners();
+    } catch (e) {
+      debugPrint('Could not load backlog: $e');
+    }
   }
 
   Future<void> _save() async {
-    final prefs = await SharedPreferences.getInstance();
-    final raw = json.encode(_entries.map((e) => e.toJson()).toList());
-    await prefs.setString(_storageKey, raw);
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final raw = json.encode(_entries.map((e) => e.toJson()).toList());
+      await prefs.setString(_storageKey, raw);
+    } catch (e) {
+      debugPrint('Could not save backlog: $e');
+    }
   }
 }
