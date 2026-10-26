@@ -60,14 +60,14 @@ class BacklogEntry {
   }
 
   Map<String, dynamic> toJson() => {
-        'id': id,
-        'name': name,
-        'backgroundImage': backgroundImage,
-        'platforms': platforms,
-        'genres': genres,
-        'status': status.name,
-        'notes': notes,
-      };
+    'id': id,
+    'name': name,
+    'backgroundImage': backgroundImage,
+    'platforms': platforms,
+    'genres': genres,
+    'status': status.name,
+    'notes': notes,
+  };
 
   factory BacklogEntry.fromJson(Map<String, dynamic> json) {
     return BacklogEntry(

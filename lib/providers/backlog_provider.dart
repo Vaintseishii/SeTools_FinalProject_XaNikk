@@ -41,7 +41,11 @@ class BacklogProvider extends ChangeNotifier {
   }
 
   // ---- Update ----
-  Future<void> update(int gameId, {BacklogStatus? status, String? notes}) async {
+  Future<void> update(
+    int gameId, {
+    BacklogStatus? status,
+    String? notes,
+  }) async {
     final index = _entries.indexWhere((e) => e.id == gameId);
     if (index == -1) return;
     _entries[index] = _entries[index].copyWith(status: status, notes: notes);

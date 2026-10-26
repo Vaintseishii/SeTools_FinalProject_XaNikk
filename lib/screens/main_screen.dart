@@ -39,8 +39,14 @@ class _MainScreenState extends State<MainScreen> {
             onTap: (i) => setState(() => _index = i),
             items: const [
               BottomNavigationBarItem(icon: Icon(Icons.list), label: 'Backlog'),
-              BottomNavigationBarItem(icon: Icon(Icons.search), label: 'Search'),
-              BottomNavigationBarItem(icon: Icon(Icons.bar_chart), label: 'Stats'),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.search),
+                label: 'Search',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.bar_chart),
+                label: 'Stats',
+              ),
             ],
           ),
         ],

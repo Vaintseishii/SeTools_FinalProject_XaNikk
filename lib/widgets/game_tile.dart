@@ -32,6 +32,7 @@ class GameTile extends StatelessWidget {
               : Image.network(
                   imageUrl!,
                   fit: BoxFit.cover,
+                  cacheWidth: 150,
                   errorBuilder: (_, _, _) => const Icon(Icons.videogame_asset),
                 ),
         ),

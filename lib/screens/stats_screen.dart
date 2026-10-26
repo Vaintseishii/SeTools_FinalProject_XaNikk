@@ -101,14 +101,12 @@ class _StatsContent extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 24),
-        const Text('% Breakdown',
-            style: TextStyle(fontWeight: FontWeight.bold)),
-        const SizedBox(height: 8),
-        _BreakdownBar(
-          playing: playing,
-          completed: completed,
-          dropped: dropped,
+        const Text(
+          '% Breakdown',
+          style: TextStyle(fontWeight: FontWeight.bold),
         ),
+        const SizedBox(height: 8),
+        _BreakdownBar(playing: playing, completed: completed, dropped: dropped),
       ],
     );
   }
@@ -128,8 +126,7 @@ class _StatCard extends StatelessWidget {
           padding: const EdgeInsets.symmetric(vertical: 16),
           child: Column(
             children: [
-              Text('$count',
-                  style: Theme.of(context).textTheme.headlineSmall),
+              Text('$count', style: Theme.of(context).textTheme.headlineSmall),
               Text(label),
             ],
           ),
@@ -178,7 +175,9 @@ class _BreakdownBar extends StatelessWidget {
                         child: Text(
                           '${(s.$1 / total * 100).round()}%',
                           style: const TextStyle(
-                              color: Colors.white, fontSize: 12),
+                            color: Colors.white,
+                            fontSize: 12,
+                          ),
                         ),
                       ),
                     ),

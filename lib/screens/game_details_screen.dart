@@ -104,8 +104,11 @@ class _GameDetailsBody extends StatelessWidget {
           child: game.backgroundImage == null
               ? ColoredBox(
                   color: theme.colorScheme.secondary,
-                  child: const Icon(Icons.videogame_asset,
-                      size: 64, color: Colors.white),
+                  child: const Icon(
+                    Icons.videogame_asset,
+                    size: 64,
+                    color: Colors.white,
+                  ),
                 )
               : Image.network(
                   game.backgroundImage!,
@@ -156,7 +159,8 @@ class _GameDetailsBody extends StatelessWidget {
                           if (!context.mounted) return;
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
-                                content: Text('${game.name} added to backlog')),
+                              content: Text('${game.name} added to backlog'),
+                            ),
                           );
                         },
                         icon: const Icon(Icons.add),
@@ -168,9 +172,9 @@ class _GameDetailsBody extends StatelessWidget {
               const SizedBox(height: 16),
               Text('About', style: theme.textTheme.titleMedium),
               const SizedBox(height: 4),
-              Text(description.isEmpty
-                  ? 'No description available.'
-                  : description),
+              Text(
+                description.isEmpty ? 'No description available.' : description,
+              ),
             ],
           ),
         ),

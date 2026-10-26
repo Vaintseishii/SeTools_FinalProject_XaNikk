@@ -23,11 +23,13 @@ class RawgService {
   Future<List<Game>> searchGames(String query) async {
     if (query.trim().isEmpty) return [];
 
-    final uri = Uri.parse('$_baseUrl/games').replace(queryParameters: {
-      'key': _apiKey,
-      'search': query.trim(),
-      'page_size': '20',
-    });
+    final uri = Uri.parse('$_baseUrl/games').replace(
+      queryParameters: {
+        'key': _apiKey,
+        'search': query.trim(),
+        'page_size': '20',
+      },
+    );
 
     final body = await _get(uri);
     final results = body['results'];
@@ -46,8 +48,9 @@ class RawgService {
   }
 
   Future<Game> getGameDetails(int id) async {
-    final uri = Uri.parse('$_baseUrl/games/$id')
-        .replace(queryParameters: {'key': _apiKey});
+    final uri = Uri.parse(
+      '$_baseUrl/games/$id',
+    ).replace(queryParameters: {'key': _apiKey});
 
     final body = await _get(uri);
     try {
@@ -60,7 +63,8 @@ class RawgService {
   Future<Map<String, dynamic>> _get(Uri uri) async {
     if (_apiKey.isEmpty) {
       throw RawgException(
-          'Missing API key. Run with --dart-define=RAWG_KEY=yourkey');
+        'Missing API key. Run with --dart-define=RAWG_KEY=yourkey',
+      );
     }
 
     final http.Response response;
