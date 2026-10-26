@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../app_routes.dart';
 import '../models/game.dart';
 import '../providers/backlog_provider.dart';
 import '../services/rawg_service.dart';
@@ -128,10 +129,18 @@ class _GameDetailsBody extends StatelessWidget {
               const SizedBox(height: 16),
               SizedBox(
                 width: double.infinity,
-                child: FilledButton.icon(
-                  onPressed: inBacklog
-                      ? null
-                      : () async {
+                child: inBacklog
+                    ? OutlinedButton.icon(
+                        onPressed: () => Navigator.pushNamed(
+                          context,
+                          AppRoutes.editEntry,
+                          arguments: game.id,
+                        ),
+                        icon: const Icon(Icons.edit),
+                        label: const Text('Edit entry'),
+                      )
+                    : FilledButton.icon(
+                        onPressed: () async {
                           await context.read<BacklogProvider>().add(game);
                           if (!context.mounted) return;
                           ScaffoldMessenger.of(context).showSnackBar(
@@ -139,9 +148,9 @@ class _GameDetailsBody extends StatelessWidget {
                                 content: Text('${game.name} added to backlog')),
                           );
                         },
-                  icon: Icon(inBacklog ? Icons.check : Icons.add),
-                  label: Text(inBacklog ? 'In your backlog' : 'Add to backlog'),
-                ),
+                        icon: const Icon(Icons.add),
+                        label: const Text('Add to backlog'),
+                      ),
               ),
               _chipSection(theme, 'Genres', game.genres),
               _chipSection(theme, 'Platforms', game.platforms),
