@@ -15,7 +15,7 @@ class GameDetailsScreen extends StatefulWidget {
 
 class _GameDetailsScreenState extends State<GameDetailsScreen> {
   final _service = RawgService();
-  late int _gameId;
+  int? _gameId;
   Future<Game>? _gameFuture;
 
   @override
@@ -23,13 +23,21 @@ class _GameDetailsScreenState extends State<GameDetailsScreen> {
     super.didChangeDependencies();
     // Fetch once, not on every rebuild.
     if (_gameFuture == null) {
-      _gameId = ModalRoute.of(context)!.settings.arguments as int;
-      _gameFuture = _service.getGameDetails(_gameId);
+      final args = ModalRoute.of(context)?.settings.arguments;
+      if (args is int) {
+        _gameId = args;
+        _gameFuture = _service.getGameDetails(args);
+      } else {
+        // Opened without a game id, so show an error instead of crashing.
+        _gameFuture = Future.error(RawgException('No game was selected.'));
+      }
     }
   }
 
   void _retry() {
-    setState(() => _gameFuture = _service.getGameDetails(_gameId));
+    final id = _gameId;
+    if (id == null) return;
+    setState(() => _gameFuture = _service.getGameDetails(id));
   }
 
   @override
@@ -42,7 +50,7 @@ class _GameDetailsScreenState extends State<GameDetailsScreen> {
           if (snapshot.connectionState != ConnectionState.done) {
             return const Center(child: CircularProgressIndicator());
           }
-          if (snapshot.hasError) {
+          if (snapshot.hasError || !snapshot.hasData) {
             final error = snapshot.error;
             final message = error is RawgException
                 ? error.message
@@ -56,11 +64,13 @@ class _GameDetailsScreenState extends State<GameDetailsScreen> {
                     const Icon(Icons.error_outline, size: 48),
                     const SizedBox(height: 12),
                     Text(message, textAlign: TextAlign.center),
-                    const SizedBox(height: 12),
-                    FilledButton(
-                      onPressed: _retry,
-                      child: const Text('Try again'),
-                    ),
+                    if (_gameId != null) ...[
+                      const SizedBox(height: 12),
+                      FilledButton(
+                        onPressed: _retry,
+                        child: const Text('Try again'),
+                      ),
+                    ],
                   ],
                 ),
               ),

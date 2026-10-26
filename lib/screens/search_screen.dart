@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../app_routes.dart';
 import '../models/game.dart';
 import '../services/rawg_service.dart';
@@ -22,7 +23,11 @@ class _SearchScreenState extends State<SearchScreen> {
   String _errorMessage = '';
   String _lastQuery = '';
 
-  @override 
+  /// Goes up by one on every search. A reply is only shown if it belongs
+  /// to the newest search, so a slow old reply can't replace new results.
+  int _searchId = 0;
+
+  @override
   void dispose() {
     _controller.dispose();
     super.dispose();
@@ -35,6 +40,7 @@ class _SearchScreenState extends State<SearchScreen> {
     if (text.isEmpty) return;
 
     FocusScope.of(context).unfocus();
+    final id = ++_searchId;
     setState(() {
       _state = _SearchState.loading;
       _lastQuery = text;
@@ -42,24 +48,35 @@ class _SearchScreenState extends State<SearchScreen> {
 
     try {
       final games = await _service.searchGames(text);
-      if (!mounted) return;
+      if (!mounted || id != _searchId) return;
       setState(() {
         _results = games;
         _state = games.isEmpty ? _SearchState.empty : _SearchState.results;
       });
     } on RawgException catch (e) {
-      if (!mounted) return;
+      if (!mounted || id != _searchId) return;
       setState(() {
         _errorMessage = e.message;
         _state = _SearchState.error;
       });
     } catch (_) {
-      if (!mounted) return;
+      if (!mounted || id != _searchId) return;
       setState(() {
         _errorMessage = 'Something went wrong. Please try again.';
         _state = _SearchState.error;
       });
     }
+  }
+
+  /// Clears the search and goes back to the starting message.
+  void _clear() {
+    _controller.clear();
+    _searchId++; // ignore any search that is still loading
+    setState(() {
+      _results = [];
+      _lastQuery = '';
+      _state = _SearchState.idle;
+    });
   }
 
   @override
@@ -74,9 +91,24 @@ class _SearchScreenState extends State<SearchScreen> {
               controller: _controller,
               textInputAction: TextInputAction.search,
               onSubmitted: _search,
+              onChanged: (value) {
+                if (value.trim().isEmpty && _state != _SearchState.idle) {
+                  _clear();
+                } else {
+                  setState(() {}); // show or hide the clear button
+                }
+              },
+              inputFormatters: [LengthLimitingTextInputFormatter(100)],
               decoration: InputDecoration(
                 hintText: 'Search',
                 prefixIcon: const Icon(Icons.search),
+                suffixIcon: _controller.text.isEmpty
+                    ? null
+                    : IconButton(
+                        icon: const Icon(Icons.clear),
+                        tooltip: 'Clear',
+                        onPressed: _clear,
+                      ),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
@@ -118,14 +150,22 @@ class _SearchScreenState extends State<SearchScreen> {
         );
 
       case _SearchState.empty:
-        return const Center(child: Text('No games found.'));
+        return Center(
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Text(
+              'No games found for "$_lastQuery".',
+              textAlign: TextAlign.center,
+            ),
+          ),
+        );
 
       case _SearchState.results:
         return ListView.builder(
           itemCount: _results.length,
           itemBuilder: (context, index) {
             final game = _results[index];
-                        final year = game.released?.split('-').first;
+            final year = game.released?.split('-').first;
             final platforms = game.platforms.take(3).join(', ');
             return GameTile(
               title: game.name,
@@ -153,4 +193,3 @@ class _SearchScreenState extends State<SearchScreen> {
     }
   }
 }
-

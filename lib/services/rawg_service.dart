@@ -1,4 +1,6 @@
+import 'dart:async';
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import '../models/game.dart';
 
@@ -28,10 +30,19 @@ class RawgService {
     });
 
     final body = await _get(uri);
-    final results = body['results'] as List<dynamic>? ?? [];
-    return results
-        .map((item) => Game.fromJson(item as Map<String, dynamic>))
-        .toList();
+    final results = body['results'];
+    if (results is! List) return [];
+
+    // One broken game should not break the whole search, so skip it.
+    final games = <Game>[];
+    for (final item in results) {
+      try {
+        games.add(Game.fromJson(item as Map<String, dynamic>));
+      } catch (e) {
+        debugPrint('Skipped a broken search result: $e');
+      }
+    }
+    return games;
   }
 
   Future<Game> getGameDetails(int id) async {
@@ -39,7 +50,11 @@ class RawgService {
         .replace(queryParameters: {'key': _apiKey});
 
     final body = await _get(uri);
-    return Game.fromJson(body);
+    try {
+      return Game.fromJson(body);
+    } catch (_) {
+      throw RawgException('RAWG sent game data we could not read.');
+    }
   }
 
   Future<Map<String, dynamic>> _get(Uri uri) async {
@@ -48,18 +63,43 @@ class RawgService {
           'Missing API key. Run with --dart-define=RAWG_KEY=yourkey');
     }
 
+    final http.Response response;
     try {
-      final response =
-          await _client.get(uri).timeout(const Duration(seconds: 15));
-
-      if (response.statusCode != 200) {
-        throw RawgException('RAWG error (${response.statusCode})');
-      }
-      return json.decode(response.body) as Map<String, dynamic>;
-    } on RawgException {
-      rethrow;
+      response = await _client.get(uri).timeout(const Duration(seconds: 15));
+    } on TimeoutException {
+      throw RawgException('RAWG took too long to answer. Please try again.');
     } catch (_) {
       throw RawgException('Could not reach RAWG. Check your connection.');
+    }
+
+    if (response.statusCode != 200) {
+      throw RawgException(_messageFor(response.statusCode));
+    }
+
+    try {
+      final decoded = json.decode(response.body);
+      if (decoded is! Map<String, dynamic>) throw const FormatException();
+      return decoded;
+    } catch (_) {
+      throw RawgException('RAWG sent data we could not read.');
+    }
+  }
+
+  /// Turns an HTTP status code into a message the user can understand.
+  String _messageFor(int statusCode) {
+    switch (statusCode) {
+      case 401:
+      case 403:
+        return 'RAWG rejected the API key. Check your RAWG_KEY.';
+      case 404:
+        return 'That game could not be found on RAWG.';
+      case 429:
+        return 'Too many requests to RAWG. Wait a moment and try again.';
+      default:
+        if (statusCode >= 500) {
+          return 'RAWG is having problems right now. Try again later.';
+        }
+        return 'Something went wrong with RAWG ($statusCode).';
     }
   }
 }

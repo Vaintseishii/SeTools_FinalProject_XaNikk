@@ -19,17 +19,21 @@ class _EditEntryScreenState extends State<EditEntryScreen> {
   BacklogStatus _status = BacklogStatus.playing;
   bool _loaded = false;
 
+  /// True while saving or removing, so a double tap can't pop twice.
+  bool _busy = false;
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     // Read the entry once so the form keeps the user's unsaved changes.
     if (_loaded) return;
     _loaded = true;
-    final gameId = ModalRoute.of(context)!.settings.arguments as int;
+    final args = ModalRoute.of(context)?.settings.arguments;
+    if (args is! int) return; // no game id: shows "not in your backlog"
     _entry = context
         .read<BacklogProvider>()
         .entries
-        .where((e) => e.id == gameId)
+        .where((e) => e.id == args)
         .firstOrNull;
     if (_entry != null) {
       _status = _entry!.status;
@@ -44,6 +48,9 @@ class _EditEntryScreenState extends State<EditEntryScreen> {
   }
 
   Future<void> _save() async {
+    if (_busy) return;
+    setState(() => _busy = true);
+
     final entry = _entry!;
     final messenger = ScaffoldMessenger.of(context);
     await context.read<BacklogProvider>().update(
@@ -57,6 +64,7 @@ class _EditEntryScreenState extends State<EditEntryScreen> {
   }
 
   Future<void> _remove() async {
+    if (_busy) return;
     final entry = _entry!;
     final confirmed = await showDialog<bool>(
       context: context,
@@ -75,7 +83,8 @@ class _EditEntryScreenState extends State<EditEntryScreen> {
         ],
       ),
     );
-    if (confirmed != true || !mounted) return;
+    if (confirmed != true || !mounted || _busy) return;
+    setState(() => _busy = true);
 
     final messenger = ScaffoldMessenger.of(context);
     await context.read<BacklogProvider>().remove(entry.id);
@@ -104,7 +113,7 @@ class _EditEntryScreenState extends State<EditEntryScreen> {
           IconButton(
             tooltip: 'Remove from backlog',
             icon: const Icon(Icons.delete_outline),
-            onPressed: _remove,
+            onPressed: _busy ? null : _remove,
           ),
         ],
       ),
@@ -155,7 +164,7 @@ class _EditEntryScreenState extends State<EditEntryScreen> {
                 SizedBox(
                   width: double.infinity,
                   child: FilledButton.icon(
-                    onPressed: _save,
+                    onPressed: _busy ? null : _save,
                     icon: const Icon(Icons.save),
                     label: const Text('Save'),
                   ),
@@ -165,11 +174,13 @@ class _EditEntryScreenState extends State<EditEntryScreen> {
                   width: double.infinity,
                   // Replaces this page so Details and Edit don't stack up.
                   child: OutlinedButton.icon(
-                    onPressed: () => Navigator.pushReplacementNamed(
-                      context,
-                      AppRoutes.gameDetails,
-                      arguments: entry.id,
-                    ),
+                    onPressed: _busy
+                        ? null
+                        : () => Navigator.pushReplacementNamed(
+                              context,
+                              AppRoutes.gameDetails,
+                              arguments: entry.id,
+                            ),
                     icon: const Icon(Icons.info_outline),
                     label: const Text('View game details'),
                   ),
