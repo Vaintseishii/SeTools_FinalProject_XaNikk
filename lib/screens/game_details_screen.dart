@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../models/game.dart';
+import '../providers/backlog_provider.dart';
 import '../services/rawg_service.dart';
 import '../widgets/rawg_attribution.dart';
 
@@ -82,6 +84,7 @@ class _GameDetailsBody extends StatelessWidget {
     final theme = Theme.of(context);
     final year = game.released?.split('-').first;
     final description = game.description?.trim() ?? '';
+    final inBacklog = context.watch<BacklogProvider>().contains(game.id);
 
     return ListView(
       children: [
@@ -121,6 +124,24 @@ class _GameDetailsBody extends StatelessWidget {
                     Text(year),
                   ],
                 ],
+              ),
+              const SizedBox(height: 16),
+              SizedBox(
+                width: double.infinity,
+                child: FilledButton.icon(
+                  onPressed: inBacklog
+                      ? null
+                      : () async {
+                          await context.read<BacklogProvider>().add(game);
+                          if (!context.mounted) return;
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                                content: Text('${game.name} added to backlog')),
+                          );
+                        },
+                  icon: Icon(inBacklog ? Icons.check : Icons.add),
+                  label: Text(inBacklog ? 'In your backlog' : 'Add to backlog'),
+                ),
               ),
               _chipSection(theme, 'Genres', game.genres),
               _chipSection(theme, 'Platforms', game.platforms),
