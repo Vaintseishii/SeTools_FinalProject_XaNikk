@@ -24,8 +24,14 @@ class BacklogScreen extends StatelessWidget {
           Expanded(
             child: backlog.total == 0
                 ? const _EmptyBacklog()
+                                : entries.isEmpty
+                ? Center(
+                    child: Text(
+                      'No ${backlog.filter!.label.toLowerCase()} games.',
+                    ),
+                  )
                 : ListView.builder(
-                    itemCount: backlog.entries.length,
+                    itemCount: entries.length,
                     itemBuilder: (context, index) {
                       final entry = entries[index];
                       return GameTile(
