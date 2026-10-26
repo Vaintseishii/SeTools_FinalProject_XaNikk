@@ -1,9 +1,7 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../app_routes.dart';
 import '../models/backlog_entry.dart';
-import '../models/game.dart';
 import '../providers/backlog_provider.dart';
 import '../widgets/game_tile.dart';
 import '../widgets/status_chip.dart';
@@ -24,29 +22,29 @@ class BacklogScreen extends StatelessWidget {
           Expanded(
             child: backlog.total == 0
                 ? const _EmptyBacklog()
-                                : entries.isEmpty
-                ? Center(
-                    child: Text(
-                      'No ${backlog.filter!.label.toLowerCase()} games.',
-                    ),
-                  )
-                : ListView.builder(
-                    itemCount: entries.length,
-                    itemBuilder: (context, index) {
-                      final entry = entries[index];
-                      return GameTile(
-                        title: entry.name,
-                        imageUrl: entry.backgroundImage,
-                        subtitle: entry.platforms.take(3).join(', '),
-                        trailing: StatusChip(status: entry.status),
-                        onTap: () => Navigator.pushNamed(
-                          context,
-                          AppRoutes.editEntry,
-                          arguments: entry.id,
+                : entries.isEmpty
+                    ? Center(
+                        child: Text(
+                          'No ${backlog.filter!.label.toLowerCase()} games.',
                         ),
-                      );
-                    },
-                  ),
+                      )
+                    : ListView.builder(
+                        itemCount: entries.length,
+                        itemBuilder: (context, index) {
+                          final entry = entries[index];
+                          return GameTile(
+                            title: entry.name,
+                            imageUrl: entry.backgroundImage,
+                            subtitle: entry.platforms.take(3).join(', '),
+                            trailing: StatusChip(status: entry.status),
+                            onTap: () => Navigator.pushNamed(
+                              context,
+                              AppRoutes.editEntry,
+                              arguments: entry.id,
+                            ),
+                          );
+                        },
+                      ),
           ),
         ],
       ),
@@ -100,42 +98,16 @@ class _EmptyBacklog extends StatelessWidget {
             'Your backlog is empty.\nSearch for a game to add it.',
             textAlign: TextAlign.center,
           ),
-          // Debug-only helper until Game Details can add games. Remove in #12.
-          if (kDebugMode)
-            TextButton(
-              onPressed: () => _addSampleGames(context.read<BacklogProvider>()),
-              child: const Text('Add sample games (debug)'),
-            ),
+          const SizedBox(height: 12),
+          // Opens MainScreen on the Search tab.
+          FilledButton.icon(
+            onPressed: () =>
+                Navigator.pushReplacementNamed(context, AppRoutes.search),
+            icon: const Icon(Icons.search),
+            label: const Text('Search games'),
+          ),
         ],
       ),
     );
-  }
-
-  Future<void> _addSampleGames(BacklogProvider backlog) async {
-    await backlog.add(
-      const Game(
-        id: 3328,
-        name: 'The Witcher 3: Wild Hunt',
-        slug: 'the-witcher-3-wild-hunt',
-        platforms: ['PC', 'PlayStation 4'],
-      ),
-    );
-    await backlog.add(
-      const Game(
-        id: 274755,
-        name: 'Hades',
-        slug: 'hades-2',
-        platforms: ['PC', 'Nintendo Switch'],
-      ),
-    );
-    await backlog.add(
-      const Game(
-        id: 22511,
-        name: 'The Legend of Zelda: Breath of the Wild',
-        slug: 'the-legend-of-zelda-breath-of-the-wild',
-        platforms: ['Nintendo Switch'],
-      ),
-    );
-    await backlog.update(274755, status: BacklogStatus.completed);
   }
 }
