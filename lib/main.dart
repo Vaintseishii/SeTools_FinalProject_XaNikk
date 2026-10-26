@@ -35,9 +35,8 @@ class CartridgeApp extends StatelessWidget {
         AppRoutes.gameDetails: (context) => const GameDetailsScreen(),
         AppRoutes.editEntry: (context) => const EditEntryScreen(),
       },
-      onUnknownRoute: (settings) => MaterialPageRoute(
-        builder: (context) => const MainScreen(),
-      ),
+      onUnknownRoute: (settings) =>
+          MaterialPageRoute(builder: (context) => const MainScreen()),
     );
   }
 }

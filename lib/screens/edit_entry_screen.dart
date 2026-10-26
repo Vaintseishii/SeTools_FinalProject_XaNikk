@@ -54,10 +54,10 @@ class _EditEntryScreenState extends State<EditEntryScreen> {
     final entry = _entry!;
     final messenger = ScaffoldMessenger.of(context);
     await context.read<BacklogProvider>().update(
-          entry.id,
-          status: _status,
-          notes: _notesController.text.trim(),
-        );
+      entry.id,
+      status: _status,
+      notes: _notesController.text.trim(),
+    );
     if (!mounted) return;
     Navigator.pop(context);
     messenger.showSnackBar(SnackBar(content: Text('${entry.name} saved')));
@@ -177,10 +177,10 @@ class _EditEntryScreenState extends State<EditEntryScreen> {
                     onPressed: _busy
                         ? null
                         : () => Navigator.pushReplacementNamed(
-                              context,
-                              AppRoutes.gameDetails,
-                              arguments: entry.id,
-                            ),
+                            context,
+                            AppRoutes.gameDetails,
+                            arguments: entry.id,
+                          ),
                     icon: const Icon(Icons.info_outline),
                     label: const Text('View game details'),
                   ),

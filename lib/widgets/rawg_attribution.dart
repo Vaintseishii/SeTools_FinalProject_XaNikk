@@ -12,9 +12,9 @@ class RawgAttribution extends StatelessWidget {
       mode: LaunchMode.externalApplication,
     );
     if (!opened && context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Could not open rawg.io')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Could not open rawg.io')));
     }
   }
 

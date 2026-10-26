@@ -23,28 +23,28 @@ class BacklogScreen extends StatelessWidget {
             child: backlog.total == 0
                 ? const _EmptyBacklog()
                 : entries.isEmpty
-                    ? Center(
-                        child: Text(
-                          'No ${backlog.filter!.label.toLowerCase()} games.',
+                ? Center(
+                    child: Text(
+                      'No ${backlog.filter!.label.toLowerCase()} games.',
+                    ),
+                  )
+                : ListView.builder(
+                    itemCount: entries.length,
+                    itemBuilder: (context, index) {
+                      final entry = entries[index];
+                      return GameTile(
+                        title: entry.name,
+                        imageUrl: entry.backgroundImage,
+                        subtitle: entry.platforms.take(3).join(', '),
+                        trailing: StatusChip(status: entry.status),
+                        onTap: () => Navigator.pushNamed(
+                          context,
+                          AppRoutes.editEntry,
+                          arguments: entry.id,
                         ),
-                      )
-                    : ListView.builder(
-                        itemCount: entries.length,
-                        itemBuilder: (context, index) {
-                          final entry = entries[index];
-                          return GameTile(
-                            title: entry.name,
-                            imageUrl: entry.backgroundImage,
-                            subtitle: entry.platforms.take(3).join(', '),
-                            trailing: StatusChip(status: entry.status),
-                            onTap: () => Navigator.pushNamed(
-                              context,
-                              AppRoutes.editEntry,
-                              arguments: entry.id,
-                            ),
-                          );
-                        },
-                      ),
+                      );
+                    },
+                  ),
           ),
         ],
       ),
