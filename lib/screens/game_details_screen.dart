@@ -63,11 +63,97 @@ class _GameDetailsScreenState extends State<GameDetailsScreen> {
               ),
             );
           }
-          // Placeholder: the real layout comes in step 3.
-          return Center(child: Text(snapshot.data!.name));
+
+          return _GameDetailsBody(game: snapshot.data!);
         },
       ),
       bottomNavigationBar: const SafeArea(child: RawgAttribution()),
+    );
+  }
+}
+
+class _GameDetailsBody extends StatelessWidget {
+  final Game game;
+
+  const _GameDetailsBody({required this.game});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final year = game.released?.split('-').first;
+    final description = game.description?.trim() ?? '';
+
+    return ListView(
+      children: [
+        AspectRatio(
+          aspectRatio: 16 / 9,
+          child: game.backgroundImage == null
+              ? ColoredBox(
+                  color: theme.colorScheme.secondary,
+                  child: const Icon(Icons.videogame_asset,
+                      size: 64, color: Colors.white),
+                )
+              : Image.network(
+                  game.backgroundImage!,
+                  fit: BoxFit.cover,
+                  errorBuilder: (_, _, _) =>
+                      const Icon(Icons.videogame_asset, size: 64),
+                ),
+        ),
+        Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(game.name, style: theme.textTheme.headlineSmall),
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  const Icon(Icons.star, size: 18, color: Colors.amber),
+                  const SizedBox(width: 4),
+                  Text(game.rating.toStringAsFixed(1)),
+                  if (game.metacritic != null) ...[
+                    const SizedBox(width: 16),
+                    Text('Metacritic ${game.metacritic}'),
+                  ],
+                  if (year != null && year.isNotEmpty) ...[
+                    const SizedBox(width: 16),
+                    Text(year),
+                  ],
+                ],
+              ),
+              _chipSection(theme, 'Genres', game.genres),
+              _chipSection(theme, 'Platforms', game.platforms),
+              const SizedBox(height: 16),
+              Text('About', style: theme.textTheme.titleMedium),
+              const SizedBox(height: 4),
+              Text(description.isEmpty
+                  ? 'No description available.'
+                  : description),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  /// A title with one chip per item. Hidden when the list is empty.
+  Widget _chipSection(ThemeData theme, String title, List<String> items) {
+    if (items.isEmpty) return const SizedBox.shrink();
+    return Padding(
+      padding: const EdgeInsets.only(top: 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(title, style: theme.textTheme.titleMedium),
+          const SizedBox(height: 4),
+          Wrap(
+            spacing: 6,
+            runSpacing: 6,
+            children: items.map((item) => Chip(label: Text(item))).toList(),
+          ),
+        ],
+      ),
     );
   }
 }
