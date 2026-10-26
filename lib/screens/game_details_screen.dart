@@ -130,8 +130,9 @@ class _GameDetailsBody extends StatelessWidget {
               SizedBox(
                 width: double.infinity,
                 child: inBacklog
+                    // Replaces this page so Details and Edit don't stack up.
                     ? OutlinedButton.icon(
-                        onPressed: () => Navigator.pushNamed(
+                        onPressed: () => Navigator.pushReplacementNamed(
                           context,
                           AppRoutes.editEntry,
                           arguments: game.id,

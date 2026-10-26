@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../app_routes.dart';
 import '../models/backlog_entry.dart';
 import '../providers/backlog_provider.dart';
 import '../widgets/game_tile.dart';
@@ -157,6 +158,20 @@ class _EditEntryScreenState extends State<EditEntryScreen> {
                     onPressed: _save,
                     icon: const Icon(Icons.save),
                     label: const Text('Save'),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                SizedBox(
+                  width: double.infinity,
+                  // Replaces this page so Details and Edit don't stack up.
+                  child: OutlinedButton.icon(
+                    onPressed: () => Navigator.pushReplacementNamed(
+                      context,
+                      AppRoutes.gameDetails,
+                      arguments: entry.id,
+                    ),
+                    icon: const Icon(Icons.info_outline),
+                    label: const Text('View game details'),
                   ),
                 ),
               ],

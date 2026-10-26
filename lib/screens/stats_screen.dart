@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../app_routes.dart';
 import '../app_theme.dart';
 import '../models/backlog_entry.dart';
 import '../providers/backlog_provider.dart';
@@ -15,8 +16,34 @@ class StatsScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(title: const Text('Your Stats')),
       body: backlog.total == 0
-          ? const Center(child: Text('Add games to see stats.'))
+          ? const _EmptyStats()
           : _StatsContent(backlog: backlog),
+    );
+  }
+}
+
+class _EmptyStats extends StatelessWidget {
+  const _EmptyStats();
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Icon(Icons.bar_chart, size: 48),
+          const SizedBox(height: 12),
+          const Text('Add games to see stats.'),
+          const SizedBox(height: 12),
+          // Opens MainScreen on the Search tab.
+          FilledButton.icon(
+            onPressed: () =>
+                Navigator.pushReplacementNamed(context, AppRoutes.search),
+            icon: const Icon(Icons.search),
+            label: const Text('Search games'),
+          ),
+        ],
+      ),
     );
   }
 }
