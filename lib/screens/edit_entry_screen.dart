@@ -124,6 +124,7 @@ class _EditEntryScreenState extends State<EditEntryScreen> {
             title: entry.name,
             imageUrl: entry.backgroundImage,
             subtitle: entry.platforms.take(3).join(', '),
+            trailing: StatusChip(status: entry.status),
           ),
           Padding(
             padding: const EdgeInsets.all(16),
